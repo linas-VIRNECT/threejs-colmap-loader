@@ -1,0 +1,25 @@
+{
+  "name": "threejs-colmap-loader",
+
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+
+  "scripts": {
+    "build": "node build.cjs",
+    "build:types": "tsc"
+  },
+
+  "dependencies": {
+  
+  },
+
+  "devDependencies": {
+    "@types/three": "^0.166.0",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.3"
+  },
+  
+  "peerDependencies": {
+    "three": "^0.166.1"
+  }
+}
