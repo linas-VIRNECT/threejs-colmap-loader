@@ -1,4 +1,3 @@
 dist
 .vscode
 node_modules
-examples/bin-laoder/public/colmap
