@@ -86,7 +86,13 @@ export type ColmapData = {
 }
 
 /**
- * Loads and parses colmap cameras.bin
+ * Parses COLMAPs cameras.bin
+ * returns a dictionary of CameraBin objects
+ * ```
+ * const cameras: {
+ *   [id: number]: CameraBin; // id: camera.id
+ * }
+ * ```
  */
 function readCamerasBinary(buffer: ArrayBuffer) {
 
@@ -135,9 +141,13 @@ function readCamerasBinary(buffer: ArrayBuffer) {
 }
 
 /**
- * Loads and parses colmap's points3D.bin
- * @param path Path to the points3D.bin file
- * @param onProgress Callback function that will be called with the total and loaded bytes of the file
+ * Parses COLMAPs points3D.bin
+ * returns a dictionary of PointBin objects
+ * ```
+ * const points3D: {
+ *   [index: number]: PointBin; // index: point.id
+ * }
+ * ```
  */
 function readPoints3DBinary(buffer: ArrayBuffer) {
     try {
@@ -207,7 +217,13 @@ function readPoints3DBinary(buffer: ArrayBuffer) {
 
 
 /**
- * Loads and parses colmaps images.bin
+ * Parses COLMAPs images.bin
+ * returns a dictionary of ImageBin objects
+ * ```
+ * const images: {
+ *   [index: number]: ImageBin; // index: image.id
+ * }
+ * ```
  */
 function readImagesBinary(buffer: ArrayBuffer) {
     try {
@@ -332,7 +348,12 @@ function getPointCloudMesh(colmapPoints: { [index: number]: PointBin }) {
     }
 }
 
-function getCameraPoses(colmapImages: { [index: number]: ImageBin }, colmapCameras: { [index: number]: CameraBin }) {
+/**
+ * 
+ * @param colmapImages 
+ * @returns camera pose from where each image was taken from.
+ */
+function getCameraPoses(colmapImages: { [index: number]: ImageBin }) {
 
     const images = Object.values(colmapImages).map((image) => {
         // get the correct camera pose. Source https://colmap.github.io/format.html#images-txt
@@ -419,9 +440,6 @@ function createCameraMesh(camera: CameraBin) {
     const pyramidMaterial = new MeshBasicMaterial({ color: 0xcc3388, wireframe: true });
     const pyramid = new Mesh(pyramidGeometry, pyramidMaterial);
 
-    // wireframed objects fails to rise evens on r3f <primitive>. so we add an ivisible one to make it work
-    const pyramidInner = new Mesh(pyramidGeometry, new MeshBasicMaterial({ wireframe: false, transparent: true, opacity: 0 }));
-    pyramid.add(pyramidInner);
     pyramid.scale.setScalar(0.25);
 
     return pyramid;
@@ -467,7 +485,7 @@ export class COLMAPLoader extends Loader {
                 const points3D = readPoints3DBinary(totalLoadedData.points3D.data!);
                 const cameras = readCamerasBinary(totalLoadedData.cameras.data!);
                 const mesh = getPointCloudMesh(points3D);
-                const cameraPoses = getCameraPoses(images, cameras);
+                const cameraPoses = getCameraPoses(images);
                 onLoad({ images, points3D, cameras, mesh, cameraPoses, createCameraMesh })
             } catch (e) {
                 onError?.(e);

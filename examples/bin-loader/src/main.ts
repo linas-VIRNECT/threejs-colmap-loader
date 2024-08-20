@@ -11,7 +11,7 @@ const sceneContainer = document.querySelector<HTMLDivElement>('#app')!;
  * Data to load.
  * You can download the samples from https://demuc.de/colmap/datasets/ and convert the .txt to .bin with colmap model_converter cli tool
  */
-const DATA_PATH = "colmap/south-building_no"
+const DATA_PATH = "colmap/south-building"
 
 const colmap = await new Promise<ColmapData>((resolve) => {
 	new COLMAPLoader().load(`${DATA_PATH}`, (data) => {
@@ -22,12 +22,12 @@ const colmap = await new Promise<ColmapData>((resolve) => {
 		console.error(err);
 	})
 });
+console.log(`Loaded: ${Object.values(colmap.cameras).length} cameras, ${Object.values(colmap.images).length} images, ${Object.values(colmap.points3D).length} points`)
 // alternatively if you don't need progress events
 // const colmap = await new COLMAPLoader().loadAsync(`${DATA_PATH}`);
 
 // clean up preloader text
 sceneContainer.innerHTML = ""
-
 
 // init three.js stuff
 const scene = new Scene();
@@ -50,7 +50,7 @@ window.addEventListener('resize', function () {
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// COLMAP uses a right handed up down facing coordinate system,
+// COLMAP uses a right handed down facing coordinate system,
 // in order to convert it to the right handed up facing coordinate system of three.js 
 // we rotate 180° around the x axis for user friendliness
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,6 @@ scene.add(colmapContainer);
 ////////////////////////////////
 // Create point cloud object //
 //////////////////////////////
-
 colmapContainer.add(colmap.mesh);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +91,7 @@ window.addEventListener("click", (event) => {
 
 	const intersects = raycaster.intersectObjects(camerasContainer.children, false);
 	if (intersects.length > 0 && intersects[0].object.userData?.pose) {
-		console.log("Image tanked from the clicked camera", colmap.images[intersects[0].object.userData.pose.imageId].name);
+		console.log("Image taken from the clicked camera", colmap.images[intersects[0].object.userData.pose.imageId].name);
 	}
 })
 
